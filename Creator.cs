@@ -88,6 +88,7 @@ public class Creator : MonoBehaviour
 
         return newScale;
     }
+    
     private Color GetRandomColor()
     {
         return new Color(Random.value, Random.value, Random.value);
