@@ -21,7 +21,7 @@ public class Creator : MonoBehaviour
 
         foreach (var cube in _explosionCubes)
             if (cube != null)
-                cube.OnExplode += Create;
+                cube.HasExploded += Create;
     }
 
     private void UnsubscribeFromExplodeEvents()
@@ -30,10 +30,10 @@ public class Creator : MonoBehaviour
 
         foreach (var cube in _explosionCubes)
             if (cube != null)
-                cube.OnExplode -= Create;
+                cube.HasExploded -= Create;
     }
 
-    private void Create(Vector3 position, Vector3 scale, int generation)
+    private void Create(EventParameters parameters)
     {
         _explosionCubes.RemoveAll(cube => cube == null);
 
@@ -43,14 +43,14 @@ public class Creator : MonoBehaviour
 
         for (int i = 0; i < cubeCount; i++)
         {
-            Vector3 newPosition = CreateNewPosition(position);
-            Vector3 newScale = CreateNewScale(scale);
+            Vector3 newPosition = CreateNewPosition(parameters.Position);
+            Vector3 newScale = CreateNewScale(parameters.Scale);
 
             ExplosionCube newCube = Instantiate(_explosionCubes[0], newPosition, Quaternion.identity);
             newCube.transform.localScale = newScale;
 
             SetRandomColor(newCube);
-            InitializeRigidbody(newCube, generation);
+            InitializeRigidbody(newCube, parameters.Generation);
             _explosionCubes.Add(newCube);
         }
     }
@@ -101,7 +101,7 @@ public class Creator : MonoBehaviour
             rigidbody.AddForce(explosionForce, ForceMode.Impulse);
             cube.SetGeneration(generation + 1);
 
-            cube.OnExplode += Create;
+            cube.HasExploded += Create;
         }
     }
 }
