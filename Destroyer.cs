@@ -1,8 +1,13 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class Destroyer : MonoBehaviour
 {
-    private ExplosionCube _explosionCube;
+    private Camera _camera;
+
+    private void Awake()
+    {
+        _camera = Camera.main;
+    }
 
     private void Update()
     {
@@ -12,20 +17,12 @@ public class Destroyer : MonoBehaviour
 
     private void TryExplodeCube()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        if (Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out RaycastHit hit))
         {
-            _explosionCube = hit.transform.GetComponent<ExplosionCube>();
+            ExplosionCube explosionCube = hit.transform.GetComponent<ExplosionCube>();
 
-            if (_explosionCube != null)
-                Explode();
+            if (explosionCube != null)
+                explosionCube.Explode();
         }
-    }
-
-    private void Explode()
-    {
-        _explosionCube.Explode();
-        _explosionCube = null;
     }
 }
