@@ -17,12 +17,8 @@ public class Destroyer : MonoBehaviour
 
     private void TryExplodeCube()
     {
-        if (Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out RaycastHit hit))
-        {
-            ExplosionCube explosionCube = hit.transform.GetComponent<ExplosionCube>();
-
-            if (explosionCube != null)
+        if (Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out RaycastHit hit))           
+            if (hit.transform.TryGetComponent<ExplosionCube>(out var explosionCube))
                 explosionCube.Explode();
-        }
     }
 }
