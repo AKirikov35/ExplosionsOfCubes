@@ -49,8 +49,25 @@ public class Creator : MonoBehaviour
             ExplosionCube newCube = Instantiate(_explosionCubes[0], newPosition, Quaternion.identity);
             newCube.transform.localScale = newScale;
 
+            newCube.Init(ReduceSplitChance(parameters.SplitChance));
+
             SetRandomColor(newCube);
-            InitializeRigidbody(newCube, parameters.Generation);
+
+            if (newCube.TryGetComponent<Rigidbody>(out var rigidbody))
+            {
+                rigidbody.isKinematic = false;
+
+                Vector3 explosionForce = new Vector3
+                (
+                    Random.Range(-3f, 3f),
+                    Random.Range(-3f, 3f),
+                    Random.Range(-3f, 3f)
+                ) * 5f;
+
+                rigidbody.AddForce(explosionForce, ForceMode.Impulse);
+                newCube.HasExploded += Create;
+            }
+
             _explosionCubes.Add(newCube);
         }
     }
@@ -79,29 +96,13 @@ public class Creator : MonoBehaviour
 
     private void SetRandomColor(ExplosionCube cube)
     {
-        Renderer cubeRenderer = cube.GetComponent<Renderer>();
-
-        if (cubeRenderer != null)
-            cubeRenderer.material.color = GetRandomColor();
+        Color randomColor = GetRandomColor();
+        cube.SetColor(randomColor);
     }
 
-    private void InitializeRigidbody(ExplosionCube cube, int generation)
-    {  
-        if (cube.TryGetComponent<Rigidbody>(out var rigidbody))
-        {
-            rigidbody.isKinematic = false;
-
-            Vector3 explosionForce = new Vector3
-            (
-                Random.Range(-3f, 3f),
-                Random.Range(-3f, 3f),
-                Random.Range(-3f, 3f)
-            ) * 5f;
-
-            rigidbody.AddForce(explosionForce, ForceMode.Impulse);
-            cube.SetGeneration(generation + 1);
-
-            cube.HasExploded += Create;
-        }
+    private float ReduceSplitChance(float splitChance)
+    {
+        float modifierChance = 2f;
+        return splitChance / modifierChance;
     }
 }
