@@ -17,7 +17,8 @@ public class Creator : MonoBehaviour
 
     private void SubscribeToExplodeEvents()
     {
-        if (_explosionCubes == null) return;
+        if (_explosionCubes == null)
+            return;
 
         foreach (var cube in _explosionCubes)
             if (cube != null)
@@ -26,7 +27,8 @@ public class Creator : MonoBehaviour
 
     private void UnsubscribeFromExplodeEvents()
     {
-        if (_explosionCubes == null) return;
+        if (_explosionCubes == null)
+            return;
 
         foreach (var cube in _explosionCubes)
             if (cube != null)
@@ -38,10 +40,10 @@ public class Creator : MonoBehaviour
         _explosionCubes.RemoveAll(cube => cube == null);
 
         int minCount = 2;
-        int maxCount = 8;
-        int cubeCount = Random.Range(minCount, maxCount);
+        int maxCount = 6;
+        int cubesCount = Random.Range(minCount, maxCount + 1);
 
-        for (int i = 0; i < cubeCount; i++)
+        for (int i = 0; i < cubesCount; i++)
         {
             Vector3 newPosition = CreateNewPosition(parameters.Position);
             Vector3 newScale = CreateNewScale(parameters.Scale);
@@ -49,9 +51,7 @@ public class Creator : MonoBehaviour
             ExplosionCube newCube = Instantiate(_explosionCubes[0], newPosition, Quaternion.identity);
             newCube.transform.localScale = newScale;
 
-            newCube.Init(ReduceSplitChance(parameters.SplitChance));
-
-            SetRandomColor(newCube);
+            newCube.Init(ReduceSplitChance(parameters.SplitChance), GetRandomColor());
 
             if (newCube.TryGetComponent<Rigidbody>(out var rigidbody))
             {
@@ -69,6 +69,11 @@ public class Creator : MonoBehaviour
             }
 
             _explosionCubes.Add(newCube);
+
+            if (parameters.Cube != null)
+            {
+                _explosionCubes.Remove(parameters.Cube);
+            }
         }
     }
 
@@ -92,12 +97,6 @@ public class Creator : MonoBehaviour
     private Color GetRandomColor()
     {
         return new Color(Random.value, Random.value, Random.value);
-    }
-
-    private void SetRandomColor(ExplosionCube cube)
-    {
-        Color randomColor = GetRandomColor();
-        cube.SetColor(randomColor);
     }
 
     private float ReduceSplitChance(float splitChance)
