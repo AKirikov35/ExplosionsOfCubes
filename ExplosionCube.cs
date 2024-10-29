@@ -7,8 +7,6 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(Renderer))]
 public class ExplosionCube : MonoBehaviour
 {
-    public event Action<EventParameters> HasExploded;
-
     private readonly float _baseDetonationRadius = 100f;
     private readonly float _baseDetonationForce = 1000f;
 
@@ -20,21 +18,31 @@ public class ExplosionCube : MonoBehaviour
     private Renderer _renderer;
     private float _splitChance = 1f;
 
+    public event Action<EventParameters> HasExploded;
+
     private void Awake()
     {
         _renderer = GetComponent<Renderer>();
     }
 
-    public void Init(float initialSplitChance)
+    private void OnDestroy()
+    {
+        HasExploded = null;
+    }
+
+    public void Init(float initialSplitChance, Color color)
     {
         _splitChance = initialSplitChance;
+
+        if (_renderer != null)
+            _renderer.material.color = color;
     }
 
     public void Explode()
     {
         if (ShouldSplit())
         {
-            var parameters = new EventParameters(transform.position, transform.localScale, _splitChance);
+            var parameters = new EventParameters(transform.position, transform.localScale, _splitChance, this);
             HasExploded?.Invoke(parameters);
         }
         else
@@ -43,12 +51,6 @@ public class ExplosionCube : MonoBehaviour
         }
 
         Destroy(gameObject);
-    }
-
-    public void SetColor(Color color)
-    {
-        if (_renderer != null)
-            _renderer.material.color = color;
     }
 
     private bool ShouldSplit()
@@ -74,10 +76,6 @@ public class ExplosionCube : MonoBehaviour
             effectiveForce = Mathf.Max(effectiveForce, _minDetonationForce);
 
             rigidbody.AddExplosionForce(effectiveForce, transform.position, radius);
-
-            Debug.Log($"Взрыв на позиции {transform.position.normalized}\n" +
-                      $"Радиус: {radius}, " +
-                      $"Сила: {force}");
         }
     }
 
