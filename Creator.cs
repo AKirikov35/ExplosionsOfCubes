@@ -73,6 +73,7 @@ public class Creator : MonoBehaviour
             if (parameters.Cube != null)
             {
                 _explosionCubes.Remove(parameters.Cube);
+                parameters.Cube.HasExploded -= Create;
             }
         }
     }
